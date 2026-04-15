@@ -356,36 +356,187 @@ http://localhost:8000
 Run this in the Supabase SQL Editor:
 
 ```sql
-create table if not exists items (
-  id bigserial primary key,
-  name text not null
+create table if not exists user_demo (
+  user_id bigserial primary key,
+  name text not null,
+  email text not null unique,
+  password text not null
 );
 ```
 
 ---
 
-## Test the API
+## Run and test in terminal
 
-### Get all items
+From the project folder, start the PHP server:
 
 ```powershell
-curl http://localhost:8000/items
+php -S localhost:8000 server.php
 ```
 
-### Create an item
+## API endpoints
+
+### `POST /signup`
+
+Creates a new account in `public.user_demo`.
+
+Expected fields:
+
+- `name`
+- `email`
+- `password`
+
+Example:
 
 ```powershell
-curl -X POST http://localhost:8000/items -H "Content-Type: application/json" -d '{"name":"Test item"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/signup `
+  -ContentType "application/json" `
+  -Body '{"name":"Ada","email":"ada@example.com","password":"secret123"}'
 ```
 
-If PowerShell complains about `curl`, use:
+If the email already exists, the API returns:
 
-```powershell
-Invoke-RestMethod -Method Get -Uri http://localhost:8000/items
+```json
+{
+  "success": false,
+  "error": "duplicate_email",
+  "field": "email",
+  "message": "This email is already registered. Please use a different email or log in."
+}
 ```
 
+### `POST /login`
+
+Checks whether the provided email and password match an existing account.
+
+Expected fields:
+
+- `email`
+- `password`
+
+Example:
+
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/items -ContentType "application/json" -Body '{"name":"Test item"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/login `
+  -ContentType "application/json" `
+  -Body '{"email":"ada@example.com","password":"secret123"}'
+```
+
+If the credentials match, the API returns a success message. If not, it returns:
+
+```json
+{
+  "success": false,
+  "message": "incorrect email or password",
+  "hint": "not account yet? go to /signup"
+}
+```
+
+### `PUT /update`
+
+Updates an existing account by email.
+
+Expected fields:
+
+- `email`
+- `name` or `password` or `new_email`
+
+Example:
+
+```powershell
+Invoke-RestMethod -Method Put -Uri http://localhost:8000/update `
+  -ContentType "application/json" `
+  -Body '{"email":"ada@example.com","name":"Ada Lovelace","password":"newsecret123"}'
+```
+
+### `DELETE /delete`
+
+Deletes an account by email.
+
+Example:
+
+```powershell
+Invoke-RestMethod -Method Delete -Uri "http://localhost:8000/delete?email=ada@example.com"
+```
+
+## Testing in a browser
+
+The browser address bar can only do simple `GET` requests, so the easiest browser test is to open:
+
+```text
+http://localhost:8000
+```
+
+That should return the JSON response from the root endpoint.
+
+To test the API from the browser:
+
+1. Open `http://localhost:8000` in your browser.
+2. Open DevTools.
+3. Go to the Console tab.
+4. Run one of these commands.
+
+### Browser console: signup
+
+```javascript
+fetch("http://localhost:8000/signup", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    name: "Ada",
+    email: "ada@example.com",
+    password: "secret123",
+  }),
+})
+  .then((response) => response.json())
+  .then(console.log);
+```
+
+### Browser console: login
+
+```javascript
+fetch("http://localhost:8000/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    email: "ada@example.com",
+    password: "secret123",
+  }),
+})
+  .then((response) => response.json())
+  .then(console.log);
+```
+
+### Browser console: update
+
+```javascript
+fetch("http://localhost:8000/update", {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    email: "ada@example.com",
+    name: "Ada Lovelace",
+    password: "newsecret123",
+  }),
+})
+  .then((response) => response.json())
+  .then(console.log);
+```
+
+### Browser console: delete
+
+```javascript
+fetch("http://localhost:8000/delete?email=ada@example.com", {
+  method: "DELETE",
+})
+  .then((response) => response.json())
+  .then(console.log);
 ```
 
 ---
