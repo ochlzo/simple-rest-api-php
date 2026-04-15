@@ -337,6 +337,47 @@ function deleteUser(PDO $pdo, array $input): array
     ];
 }
 
+function getUsers(PDO $pdo, array $input): array
+{
+    $email = trim((string) ($input['email'] ?? ''));
+
+    if ($email !== '') {
+        $stmt = $pdo->prepare(
+            'SELECT user_id, name, email
+             FROM user_demo
+             WHERE email = :email
+             LIMIT 1'
+        );
+        $stmt->execute([':email' => $email]);
+        $user = $stmt->fetch();
+
+        if (!$user || !is_array($user)) {
+            return [
+                'success' => false,
+                'message' => 'user not found.',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'user' => $user,
+        ];
+    }
+
+    $stmt = $pdo->query(
+        'SELECT user_id, name, email
+         FROM user_demo
+         ORDER BY user_id ASC'
+    );
+    $users = $stmt->fetchAll();
+
+    return [
+        'success' => true,
+        'count' => is_array($users) ? count($users) : 0,
+        'users' => is_array($users) ? $users : [],
+    ];
+}
+
 function handleRoot(PDO $pdo): array
 {
     $result = $pdo->query('SELECT NOW() AS current_time')->fetch();
@@ -354,6 +395,23 @@ try {
     $pdo = createDatabasePdo();
     $path = getRequestPath();
     $method = getRequestMethod();
+
+    if ($path === '/users') {
+        if ($method !== 'GET') {
+            header('Allow: GET');
+            respondJson([
+                'success' => false,
+                'message' => 'Method not allowed.',
+            ], 405);
+            return;
+        }
+
+        $result = getUsers($pdo, getRequestInput());
+        $statusCode = $result['success'] ? 200 : 404;
+
+        respondJson($result, $statusCode);
+        return;
+    }
 
     if ($path === '/login') {
         if ($method !== 'POST') {
