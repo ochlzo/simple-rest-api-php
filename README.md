@@ -325,7 +325,17 @@ If those files are missing, reinstall PHP using Scoop or re-download the correct
 
 ## Project setup after PHP works
 
-### 1) Set your Supabase connection string
+### 1) Install Composer dependencies
+
+From the project root:
+
+```powershell
+composer install
+```
+
+If you do not have Composer installed globally yet, install it first.
+
+### 2) Set your Supabase connection string
 
 In PowerShell:
 
@@ -333,7 +343,7 @@ In PowerShell:
 $env:DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres?sslmode=require"
 ```
 
-### 2) Start the PHP server
+### 3) Start the PHP server
 
 From the project folder:
 
@@ -341,7 +351,7 @@ From the project folder:
 php -S localhost:8000 server.php
 ```
 
-### 3) Open the API
+### 4) Open the API
 
 In your browser:
 

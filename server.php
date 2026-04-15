@@ -7,42 +7,21 @@ declare(strict_types=1);
  * using DATABASE_URL from .env
  */
 
-function loadEnv(string $path): void
-{
-    if (!file_exists($path)) {
-        throw new RuntimeException(".env file not found at: {$path}");
-    }
+$autoloadPath = __DIR__ . '/vendor/autoload.php';
 
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    if ($lines === false) {
-        throw new RuntimeException("Unable to read .env file.");
-    }
-
-    foreach ($lines as $line) {
-        $line = trim($line);
-
-        if ($line === '' || str_starts_with($line, '#')) {
-            continue;
-        }
-
-        [$key, $value] = array_pad(explode('=', $line, 2), 2, '');
-
-        $key = trim($key);
-        $value = trim($value);
-
-        // Remove wrapping quotes if present
-        $value = trim($value, "\"'");
-
-        $_ENV[$key] = $value;
-        putenv("$key=$value");
-    }
+if (!file_exists($autoloadPath)) {
+    throw new RuntimeException(
+        'Composer dependencies are missing. Run `composer install` first.'
+    );
 }
 
-try {
-    loadEnv(__DIR__ . '/.env');
+require $autoloadPath;
 
-    $databaseUrl = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL');
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->safeLoad();
+
+    $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL');
 
     if (!$databaseUrl) {
         throw new RuntimeException('DATABASE_URL is missing.');
@@ -85,7 +64,7 @@ try {
         'success' => true,
         'message' => 'Connected to Supabase successfully.',
         'server_time' => $result['current_time'] ?? null,
-    ]);
+    ], JSON_PRETTY_PRINT);
 
 } catch (Throwable $e) {
     http_response_code(500);
@@ -93,5 +72,5 @@ try {
     echo json_encode([
         'success' => false,
         'error' => $e->getMessage(),
-    ]);
+    ], JSON_PRETTY_PRINT);
 }
