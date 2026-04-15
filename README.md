@@ -359,43 +359,108 @@ In your browser:
 http://localhost:8000
 ```
 
----
+## Testing in a browser
 
-## Create the sample table in Supabase
+The browser address bar can only do simple `GET` requests, so the easiest browser test is to open:
 
-Run this in the Supabase SQL Editor:
-
-```sql
-create table if not exists items (
-  id bigserial primary key,
-  name text not null
-);
+```text
+http://localhost:8000
 ```
 
----
+That should return the JSON response from the root endpoint.
 
-## Test the API
+To test `POST /login` or `POST /signup` from the browser:
 
-### Get all items
+1. Open `http://localhost:8000` in your browser.
+2. Open DevTools.
+3. Go to the Console tab.
+4. Run one of these commands.
 
-```powershell
-curl http://localhost:8000/items
+### Browser console: signup
+
+```javascript
+fetch('http://localhost:8000/signup', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    name: 'Ada',
+    email: 'ada@example.com',
+    password: 'secret123',
+  }),
+}).then((response) => response.json()).then(console.log);
 ```
 
-### Create an item
+### Browser console: login
 
-```powershell
-curl -X POST http://localhost:8000/items -H "Content-Type: application/json" -d '{"name":"Test item"}'
+```javascript
+fetch('http://localhost:8000/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    email: 'ada@example.com',
+    password: 'secret123',
+  }),
+}).then((response) => response.json()).then(console.log);
 ```
 
-If PowerShell complains about `curl`, use:
+## API endpoints
+
+### `POST /signup`
+
+Creates a new account in `public.user_demo`.
+
+Expected fields:
+
+- `name`
+- `email`
+- `password`
+
+Example:
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri http://localhost:8000/items
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/signup `
+  -ContentType "application/json" `
+  -Body '{"name":"Ada","email":"ada@example.com","password":"secret123"}'
 ```
 
+If the email already exists, the API returns:
+
+```json
+{
+  "success": false,
+  "message": "email is already existing."
+}
+```
+
+### `POST /login`
+
+Checks whether the provided email and password match an existing account.
+
+Expected fields:
+
+- `email`
+- `password`
+
+Example:
+
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/items -ContentType "application/json" -Body '{"name":"Test item"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/login `
+  -ContentType "application/json" `
+  -Body '{"email":"ada@example.com","password":"secret123"}'
+```
+
+If the credentials match, the API returns a success message. If not, it returns:
+
+```json
+{
+  "success": false,
+  "message": "incorrect email or password",
+  "hint": "not account yet? go to /signup"
+}
 ```
 
 ---
