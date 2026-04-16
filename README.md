@@ -180,7 +180,7 @@ Invoke-RestMethod -Method Get -Uri "http://localhost:8000/users?email=ada@exampl
 ```powershell
 Invoke-RestMethod -Method Put -Uri http://localhost:8000/update `
   -ContentType "application/json" `
-  -Body '{"email":"ada@example.com","name":"Ada Lovelace","new_email":"ada.lovelace@example.com","password":"newsecret123"}'
+  -Body '{"email":"ada@example.com","new-email":"ada.lovelace@example.com","new-name":"Ada Lovelace","new-password":"newsecret123"}'
 ```
 
 ### Delete user

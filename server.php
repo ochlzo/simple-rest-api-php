@@ -156,7 +156,7 @@ function loginUser(PDO $pdo, array $input): array
     if (!$user || !is_array($user)) {
         return [
             'success' => false,
-            'message' => 'incorrect email or password',
+            'message' => 'email not found',
             'hint' => 'no account yet? go to /signup',
         ];
     }
@@ -166,7 +166,7 @@ function loginUser(PDO $pdo, array $input): array
     if (!getRawPasswordMatch($storedPassword, $password)) {
         return [
             'success' => false,
-            'message' => 'incorrect email or password',
+            'message' => 'incorrect password',
             'hint' => 'no account yet? go to /signup',
         ];
     }
@@ -231,11 +231,9 @@ function signupUser(PDO $pdo, array $input): array
 function updateUser(PDO $pdo, array $input): array
 {
     $email = trim((string) ($input['email'] ?? ''));
-    $name = trim((string) ($input['name'] ?? ''));
-    $newEmail = trim((string) ($input['new_email'] ?? ''));
-    $password = (string) ($input['password'] ?? '');
-    $updates = [];
-    $params = [':email' => $email];
+    $newEmail = trim((string) ($input['new-email'] ?? ''));
+    $newName = trim((string) ($input['new-name'] ?? ''));
+    $newPassword = (string) ($input['new-password'] ?? '');
 
     if ($email === '') {
         return [
@@ -244,39 +242,50 @@ function updateUser(PDO $pdo, array $input): array
         ];
     }
 
-    if ($name !== '') {
-        $updates[] = 'name = :name';
-        $params[':name'] = $name;
-    }
+    $lookupStmt = $pdo->prepare(
+        'SELECT user_id
+         FROM user_demo
+         WHERE email = :email
+         LIMIT 1'
+    );
+    $lookupStmt->execute([':email' => $email]);
+    $user = $lookupStmt->fetch();
 
-    if ($newEmail !== '') {
-        $updates[] = 'email = :new_email';
-        $params[':new_email'] = $newEmail;
-    }
-
-    if ($password !== '') {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        if ($hashedPassword === false) {
-            throw new RuntimeException('Unable to hash password.');
-        }
-
-        $updates[] = 'password = :password';
-        $params[':password'] = $hashedPassword;
-    }
-
-    if ($updates === []) {
+    if (!$user || !is_array($user)) {
         return [
             'success' => false,
-            'message' => 'name, new_email, or password is required.',
+            'message' => 'user not found.',
         ];
     }
 
-    $sql = 'UPDATE user_demo SET ' . implode(', ', $updates) . ' WHERE email = :email RETURNING user_id, name, email';
+    if ($newEmail === '' || $newName === '' || trim($newPassword) === '') {
+        return [
+            'success' => false,
+            'message' => 'email, new-email, new-name, and new-password are required.',
+        ];
+    }
+
+    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+    if ($hashedPassword === false) {
+        throw new RuntimeException('Unable to hash password.');
+    }
 
     try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt = $pdo->prepare(
+            'UPDATE user_demo
+             SET name = :name,
+                 email = :new_email,
+                 password = :password
+             WHERE user_id = :user_id
+             RETURNING user_id, name, email'
+        );
+        $stmt->execute([
+            ':name' => $newName,
+            ':new_email' => $newEmail,
+            ':password' => $hashedPassword,
+            ':user_id' => (int) ($user['user_id'] ?? 0),
+        ]);
         $user = $stmt->fetch();
     } catch (PDOException $e) {
         $sqlState = (string) ($e->errorInfo[0] ?? $e->getCode());
@@ -286,7 +295,7 @@ function updateUser(PDO $pdo, array $input): array
             return [
                 'success' => false,
                 'error' => 'duplicate_email',
-                'field' => 'new_email',
+                'field' => 'new-email',
                 'message' => 'This email is already registered. Please use a different email.',
             ];
         }
