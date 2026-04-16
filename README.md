@@ -36,8 +36,8 @@ A simple PHP REST API backed by Supabase PostgreSQL.
 ## 1) Clone the project
 
 ```powershell
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
+git clone https://github.com/ochlzo/simple-rest-api-php.git
+cd simple-rest-api-php
 ```
 
 ## 2) Install PHP
