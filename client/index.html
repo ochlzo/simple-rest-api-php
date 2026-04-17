@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>REST API Browser Client</title>
+  </head>
+  <body>
+    <h1>REST API Browser Client</h1>
+
+    <section>
+      <label for="baseUrl">Base URL</label>
+      <input id="baseUrl" type="text" value="http://localhost:8000" size="40">
+      <button id="saveBaseUrl" type="button">Save</button>
+    </section>
+
+    <hr>
+
+    <section>
+      <h2>Root</h2>
+      <button id="rootButton" type="button">GET /</button>
+    </section>
+
+    <section>
+      <h2>Signup</h2>
+      <input id="signupName" type="text" placeholder="name">
+      <input id="signupEmail" type="email" placeholder="email">
+      <input id="signupPassword" type="password" placeholder="password">
+      <button id="signupButton" type="button">POST /signup</button>
+    </section>
+
+    <section>
+      <h2>Login</h2>
+      <input id="loginEmail" type="email" placeholder="email">
+      <input id="loginPassword" type="password" placeholder="password">
+      <button id="loginButton" type="button">POST /login</button>
+    </section>
+
+    <section>
+      <h2>Users</h2>
+      <input id="usersEmail" type="email" placeholder="email optional">
+      <button id="usersButton" type="button">GET /users</button>
+    </section>
+
+    <section>
+      <h2>Update</h2>
+      <input id="updateEmail" type="email" placeholder="current email">
+      <input id="updateNewEmail" type="email" placeholder="new email">
+      <input id="updateNewName" type="text" placeholder="new name">
+      <input id="updateNewPassword" type="password" placeholder="new password">
+      <button id="updateButton" type="button">PUT /update</button>
+    </section>
+
+    <section>
+      <h2>Delete</h2>
+      <input id="deleteEmail" type="email" placeholder="email">
+      <button id="deleteButton" type="button">DELETE /delete</button>
+    </section>
+
+    <hr>
+
+    <section>
+      <h2>Response</h2>
+      <pre id="output">Ready.</pre>
+    </section>
+
+    <script src="./browser-client.js"></script>
+  </body>
+</html>

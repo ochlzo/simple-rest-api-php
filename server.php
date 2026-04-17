@@ -121,6 +121,14 @@ function respondJson(array $payload, int $statusCode = 200): void
     echo json_encode($payload, JSON_PRETTY_PRINT);
 }
 
+function sendCorsHeaders(): void
+{
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Accept');
+    header('Access-Control-Max-Age: 86400');
+}
+
 function getRawPasswordMatch(string $storedPassword, string $inputPassword): bool
 {
     $passwordInfo = password_get_info($storedPassword);
@@ -399,6 +407,13 @@ function handleRoot(PDO $pdo): array
 }
 
 try {
+    sendCorsHeaders();
+
+    if (getRequestMethod() === 'OPTIONS') {
+        http_response_code(204);
+        return;
+    }
+
     loadEnv(__DIR__ . '/.env');
 
     $pdo = createDatabasePdo();
