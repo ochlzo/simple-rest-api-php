@@ -204,10 +204,16 @@ Run the Python client like this:
 python .\client\python\python-client.py
 ```
 
-Compile and run the Java Swing client from source like this:
+Run the Java Swing client from source like this:
 
 ```powershell
 javac .\client\java-swing\ApiSwingClient.java
+java -cp .\client\java-swing ApiSwingClient
+```
+
+Run the precompiled Java Swing client like this:
+
+```powershell
 java -cp .\client\java-swing ApiSwingClient
 ```
 

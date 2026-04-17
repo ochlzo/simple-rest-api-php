@@ -69,8 +69,8 @@ public class ApiSwingClient extends JFrame {
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
         JTextArea description = new JTextArea(
-            "This one-file Swing client uses the same requests as the Python client and sends them to your PHP API. "
-                + "The PHP server then reads and writes data from the Supabase PostgreSQL database."
+            "This Java Swing desktop client lets you send signup, login, read, update, and delete requests to your PHP API. "
+                + "The API then reads and writes user data in the Supabase PostgreSQL database."
         );
         description.setEditable(false);
         description.setOpaque(false);
@@ -81,12 +81,8 @@ public class ApiSwingClient extends JFrame {
         JPanel baseUrlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         baseUrlPanel.setBorder(BorderFactory.createTitledBorder("Connection"));
 
-        JButton rootButton = new JButton("Health Check");
-        rootButton.addActionListener(event -> sendRequest("GET", "/", null, null));
-
         baseUrlPanel.add(new JLabel("Base URL"));
         baseUrlPanel.add(baseUrlField);
-        baseUrlPanel.add(rootButton);
 
         JPanel textPanel = new JPanel();
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
