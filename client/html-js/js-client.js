@@ -25,7 +25,8 @@ function buildUrl(baseUrl, path, query) {
 }
 
 async function callApi(method, path, data = null, query = null) {
-  const baseUrl = document.getElementById("baseUrl").value.trim() || "http://localhost:8080";
+  const baseUrl =
+    document.getElementById("baseUrl").value.trim() || "http://localhost:8000";
   const url = buildUrl(baseUrl, path, query);
 
   const headers = {
