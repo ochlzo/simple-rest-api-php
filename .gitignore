@@ -1,2 +1,3 @@
 .env
 *.class
+!client/java-swing/ApiSwingClient.class

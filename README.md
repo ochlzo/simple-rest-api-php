@@ -144,13 +144,13 @@ http://127.0.0.1:8000
 ### Root
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri http://localhost:8000/
+Invoke-RestMethod -Method Get -Uri http://127.0.0.1:8000/
 ```
 
 ### Signup
 
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/signup `
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/signup `
   -ContentType "application/json" `
   -Body '{"name":"Ada","email":"ada@example.com","password":"secret123"}'
 ```
@@ -158,7 +158,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8000/signup `
 ### Login
 
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:8000/login `
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/login `
   -ContentType "application/json" `
   -Body '{"email":"ada@example.com","password":"secret123"}'
 ```
@@ -166,19 +166,19 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8000/login `
 ### Get all users
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri http://localhost:8000/users
+Invoke-RestMethod -Method Get -Uri http://127.0.0.1:8000/users
 ```
 
 ### Get one user by email
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri "http://localhost:8000/users?email=ada@example.com"
+Invoke-RestMethod -Method Get -Uri "http://127.0.0.1:8000/users?email=ada@example.com"
 ```
 
 ### Update user
 
 ```powershell
-Invoke-RestMethod -Method Put -Uri http://localhost:8000/update `
+Invoke-RestMethod -Method Put -Uri http://127.0.0.1:8000/update `
   -ContentType "application/json" `
   -Body '{"email":"ada@example.com","new-email":"ada.lovelace@example.com","new-name":"Ada Lovelace","new-password":"newsecret123"}'
 ```
@@ -186,27 +186,29 @@ Invoke-RestMethod -Method Put -Uri http://localhost:8000/update `
 ### Delete user
 
 ```powershell
-Invoke-RestMethod -Method Delete -Uri "http://localhost:8000/delete?email=ada@example.com"
+Invoke-RestMethod -Method Delete -Uri "http://127.0.0.1:8000/delete?email=ada@example.com"
 ```
 
 ## Demo Clients
 
-This repo now includes two simple API clients in the [client](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client) folder:
+This repo now includes multiple demo clients in the [client](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client) folder:
 
-- [client/python-client.py](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/python-client.py) for a lightweight cross-platform Python CLI
-- [client/ApiSwingClient.java](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/ApiSwingClient.java) for a single-file Java Swing desktop client
+- [client/python/python-client.py](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/python/python-client.py) for a lightweight Python client
+- [client/html-js/index.html](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/html-js/index.html) and [client/html-js/js-client.js](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/html-js/js-client.js) for the browser client
+- [client/java-swing/ApiSwingClient.java](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/java-swing/ApiSwingClient.java) for the Java Swing desktop client
+- [client/java-swing/ApiSwingClient.class](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/java-swing/ApiSwingClient.class) for the precompiled Java class
 
 Run the Python client like this:
 
 ```powershell
-python .\client\python-client.py
+python .\client\python\python-client.py
 ```
 
-Compile and run the Java Swing client like this:
+Compile and run the Java Swing client from source like this:
 
 ```powershell
-javac .\client\ApiSwingClient.java
-java -cp .\client ApiSwingClient
+javac .\client\java-swing\ApiSwingClient.java
+java -cp .\client\java-swing ApiSwingClient
 ```
 
 ### Java client quick run
@@ -220,16 +222,22 @@ php -S 127.0.0.1:8000 server.php
 2. Compile the Java client:
 
 ```powershell
-javac .\client\ApiSwingClient.java
+javac .\client\java-swing\ApiSwingClient.java
 ```
 
 3. Launch the Swing app:
 
 ```powershell
-java -cp .\client ApiSwingClient
+java -cp .\client\java-swing ApiSwingClient
 ```
 
-4. In the app, keep the Base URL set to:
+4. Or run the precompiled class directly:
+
+```powershell
+java -cp .\client\java-swing ApiSwingClient
+```
+
+5. In the app, keep the Base URL set to:
 
 ```text
 http://127.0.0.1:8000
@@ -253,7 +261,7 @@ Because PowerShell throws on `401`, use `try/catch` if you want to inspect the r
 
 ```powershell
 try {
-    $response = Invoke-RestMethod -Method Post -Uri "http://localhost:8000/login" `
+    $response = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/login" `
         -ContentType "application/json" `
         -Body '{"email":"ada@example.com","password":"wrong-password"}' `
         -ErrorAction Stop
