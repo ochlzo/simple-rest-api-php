@@ -1,69 +1,297 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>REST API Browser Client</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PHP API Client</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7fb;
+        --card: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --primary: #111827;
+        --primary-text: #ffffff;
+        --input: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+      }
+
+      h1, h2, h3, p {
+        margin-top: 0;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      label {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--input);
+        font-size: 14px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        background: var(--primary);
+        color: var(--primary-text);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .tab-button {
+        background: #e5e7eb;
+        color: var(--text);
+      }
+
+      .tab-button.active {
+        background: var(--primary);
+        color: var(--primary-text);
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .status-box,
+      .note {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        background: #f9fafb;
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #f3f4f6;
+        border-radius: 14px;
+        padding: 16px;
+        min-height: 420px;
+        overflow: auto;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .layout,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>REST API Browser Client</h1>
+    <div class="container">
+      <div class="hero">
+        <div class="card">
+          <h1>PHP API Client Website</h1>
+          <p class="muted">
+            A simple HTML and JavaScript client for your PHP API routes: root, signup, login, users, update, and delete.
+          </p>
+          <div class="field">
+            <label for="baseUrl">Base URL</label>
+            <input id="baseUrl" type="text" value="http://localhost:8000" placeholder="http://localhost:8000" />
+          </div>
+          <p class="muted">Keep your database URL on the server. This page only calls the PHP API.</p>
+        </div>
 
-    <section>
-      <label for="baseUrl">Base URL</label>
-      <input id="baseUrl" type="text" value="http://localhost:8000" size="40">
-      <button id="saveBaseUrl" type="button">Save</button>
-    </section>
+        <div class="card">
+          <div class="status-box">
+            <p class="muted">Status</p>
+            <h3 id="statusLabel">Ready</h3>
+          </div>
+        </div>
+      </div>
 
-    <hr>
+      <div class="layout">
+        <div>
+          <div class="tabs">
+            <button class="tab-button active" data-tab="root">Root</button>
+            <button class="tab-button" data-tab="signup">Signup</button>
+            <button class="tab-button" data-tab="login">Login</button>
+            <button class="tab-button" data-tab="users">Users</button>
+            <button class="tab-button" data-tab="update">Update</button>
+            <button class="tab-button" data-tab="delete">Delete</button>
+          </div>
 
-    <section>
-      <h2>Root</h2>
-      <button id="rootButton" type="button">GET /</button>
-    </section>
+          <div id="root" class="panel active card">
+            <h2>GET /</h2>
+            <p class="muted">Checks that the API is running and returns the server time.</p>
+            <button id="rootBtn">Send root request</button>
+          </div>
 
-    <section>
-      <h2>Signup</h2>
-      <input id="signupName" type="text" placeholder="name">
-      <input id="signupEmail" type="email" placeholder="email">
-      <input id="signupPassword" type="password" placeholder="password">
-      <button id="signupButton" type="button">POST /signup</button>
-    </section>
+          <div id="signup" class="panel card">
+            <h2>POST /signup</h2>
+            <p class="muted">Creates a new user with name, email, and password.</p>
+            <div class="grid">
+              <div class="field">
+                <label for="signupName">Name</label>
+                <input id="signupName" type="text" placeholder="John Doe" />
+              </div>
+              <div class="field">
+                <label for="signupEmail">Email</label>
+                <input id="signupEmail" type="email" placeholder="john@example.com" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="signupPassword">Password</label>
+              <input id="signupPassword" type="password" placeholder="••••••••" />
+            </div>
+            <button id="signupBtn">Create account</button>
+          </div>
 
-    <section>
-      <h2>Login</h2>
-      <input id="loginEmail" type="email" placeholder="email">
-      <input id="loginPassword" type="password" placeholder="password">
-      <button id="loginButton" type="button">POST /login</button>
-    </section>
+          <div id="login" class="panel card">
+            <h2>POST /login</h2>
+            <p class="muted">Logs in an existing user with email and password.</p>
+            <div class="grid">
+              <div class="field">
+                <label for="loginEmail">Email</label>
+                <input id="loginEmail" type="email" placeholder="john@example.com" />
+              </div>
+              <div class="field">
+                <label for="loginPassword">Password</label>
+                <input id="loginPassword" type="password" placeholder="••••••••" />
+              </div>
+            </div>
+            <button id="loginBtn">Log in</button>
+          </div>
 
-    <section>
-      <h2>Users</h2>
-      <input id="usersEmail" type="email" placeholder="email optional">
-      <button id="usersButton" type="button">GET /users</button>
-    </section>
+          <div id="users" class="panel card">
+            <h2>GET /users</h2>
+            <p class="muted">Fetches all users, or one user by email.</p>
+            <div class="field">
+              <label for="usersEmail">Email (optional)</label>
+              <input id="usersEmail" type="email" placeholder="Leave blank to fetch all users" />
+            </div>
+            <button id="usersBtn">Fetch users</button>
+          </div>
 
-    <section>
-      <h2>Update</h2>
-      <input id="updateEmail" type="email" placeholder="current email">
-      <input id="updateNewEmail" type="email" placeholder="new email">
-      <input id="updateNewName" type="text" placeholder="new name">
-      <input id="updateNewPassword" type="password" placeholder="new password">
-      <button id="updateButton" type="button">PUT /update</button>
-    </section>
+          <div id="update" class="panel card">
+            <h2>PUT /update</h2>
+            <p class="muted">Updates a user using the same field names as your Python and PHP clients.</p>
+            <div class="grid">
+              <div class="field">
+                <label for="updateEmail">Current email</label>
+                <input id="updateEmail" type="email" placeholder="john@example.com" />
+              </div>
+              <div class="field">
+                <label for="updateNewEmail">New email</label>
+                <input id="updateNewEmail" type="email" placeholder="john.new@example.com" />
+              </div>
+              <div class="field">
+                <label for="updateNewName">New name</label>
+                <input id="updateNewName" type="text" placeholder="John New" />
+              </div>
+              <div class="field">
+                <label for="updateNewPassword">New password</label>
+                <input id="updateNewPassword" type="password" placeholder="••••••••" />
+              </div>
+            </div>
+            <button id="updateBtn">Update user</button>
+          </div>
 
-    <section>
-      <h2>Delete</h2>
-      <input id="deleteEmail" type="email" placeholder="email">
-      <button id="deleteButton" type="button">DELETE /delete</button>
-    </section>
+          <div id="delete" class="panel card">
+            <h2>DELETE /delete</h2>
+            <p class="muted">Deletes a user by email using the query parameter pattern from your Python client.</p>
+            <div class="field">
+              <label for="deleteEmail">Email</label>
+              <input id="deleteEmail" type="email" placeholder="john@example.com" />
+            </div>
+            <button id="deleteBtn">Delete user</button>
+          </div>
+        </div>
 
-    <hr>
+        <div class="card">
+          <h2>Response</h2>
+          <p class="muted">Pretty-printed API output appears here.</p>
+          <div class="note">
+            The browser must be able to reach your PHP server. If your API is on another origin, enable CORS on the PHP side.
+          </div>
+          <br />
+          <pre id="responseBox">Run a request to see the response here.</pre>
+        </div>
+      </div>
+    </div>
 
-    <section>
-      <h2>Response</h2>
-      <pre id="output">Ready.</pre>
-    </section>
-
-    <script src="./browser-client.js"></script>
+    <script src="js-client.js"></script>
   </body>
 </html>
