@@ -130,13 +130,13 @@ Replace `YOUR_PASSWORD` and `YOUR_PROJECT` with your real Supabase credentials.
 From the project folder:
 
 ```powershell
-php -S localhost:8000 server.php
+php -S 127.0.0.1:8000 server.php
 ```
 
 Open:
 
 ```text
-http://localhost:8000
+http://127.0.0.1:8000
 ```
 
 ## Example Requests
@@ -207,6 +207,32 @@ Compile and run the Java Swing client like this:
 ```powershell
 javac .\client\ApiSwingClient.java
 java -cp .\client ApiSwingClient
+```
+
+### Java client quick run
+
+1. Start the PHP API first:
+
+```powershell
+php -S 127.0.0.1:8000 server.php
+```
+
+2. Compile the Java client:
+
+```powershell
+javac .\client\ApiSwingClient.java
+```
+
+3. Launch the Swing app:
+
+```powershell
+java -cp .\client ApiSwingClient
+```
+
+4. In the app, keep the Base URL set to:
+
+```text
+http://127.0.0.1:8000
 ```
 
 ## Response Notes
@@ -284,7 +310,7 @@ Make sure `pdo_pgsql` and `pgsql` are enabled in the correct `php.ini`.
 Make sure you are in the project folder and `server.php` exists:
 
 ```powershell
-php -S localhost:8000 server.php
+php -S 127.0.0.1:8000 server.php
 ```
 
 ### Database connection fails
