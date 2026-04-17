@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supabase API Desktop-Style Client</title>
+    <style>
+      :root {
+        --primary: #3ecf8e;
+        --bg: #1c1c1c;
+        --panel: #2a2a2a;
+        --text: #f0f0f0;
+        --border: #444;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      /* Layout */
+      #control-panel {
+        width: 55%;
+        padding: 25px;
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+      }
+      #output-panel {
+        width: 45%;
+        background: #000;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Navigation */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        background: #333;
+        padding: 5px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        background: transparent;
+        color: #bbb;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: 0.2s;
+        font-weight: 600;
+      }
+      .tab-btn.active {
+        background: var(--primary);
+        color: #000;
+      }
+
+      /* Forms */
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+        color: #aaa;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        background: #333;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: #fff;
+        box-sizing: border-box;
+        font-size: 1em;
+      }
+      input:focus {
+        border-color: var(--primary);
+        outline: none;
+      }
+
+      button.action-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: #000;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 10px;
+      }
+      button.action-btn:hover {
+        opacity: 0.9;
+      }
+      button.delete-btn {
+        background: #ff4d4d;
+        color: white;
+      }
+
+      /* Console */
+      #console-header {
+        color: #888;
+        font-size: 0.8em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 5px;
+      }
+      #response-meta {
+        margin-bottom: 15px;
+        font-family: monospace;
+      }
+      .status-pill {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+      #json-display {
+        flex-grow: 1;
+        background: #0a0a0a;
+        padding: 15px;
+        border: 1px solid #222;
+        border-radius: 4px;
+        color: var(--primary);
+        font-family: "Consolas", "Monaco", monospace;
+        overflow: auto;
+        white-space: pre-wrap;
+        font-size: 0.95em;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="control-panel">
+      <h2 style="margin-top: 0">Supabase REST API Client</h2>
+      <p style="color: #888; font-size: 0.9em">
+        Connected to: <span id="base-url-display">http://localhost:8000</span>
+      </p>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('signup', this)">
+          Signup
+        </button>
+        <button class="tab-btn" onclick="switchTab('login', this)">
+          Login
+        </button>
+        <button class="tab-btn" onclick="switchTab('users', this)">
+          Users
+        </button>
+        <button class="tab-btn" onclick="switchTab('update', this)">
+          Update
+        </button>
+        <button class="tab-btn" onclick="switchTab('delete', this)">
+          Delete
+        </button>
+      </div>
+
+      <div id="signup" class="view active">
+        <h3>Create New User</h3>
+        <div class="form-group">
+          <label>Full Name</label
+          ><input type="text" id="s-name" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label
+          ><input type="email" id="s-email" placeholder="john@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Password</label
+          ><input type="password" id="s-pass" placeholder="••••••••" />
+        </div>
+        <button class="action-btn" onclick="doSignup()">Create User</button>
+      </div>
+
+      <div id="login" class="view">
+        <h3>User Authentication</h3>
+        <div class="form-group">
+          <label>Email Address</label><input type="email" id="l-email" />
+        </div>
+        <div class="form-group">
+          <label>Password</label><input type="password" id="l-pass" />
+        </div>
+        <button class="action-btn" onclick="doLogin()">Login</button>
+      </div>
+
+      <div id="users" class="view">
+        <h3>Retrieve Data</h3>
+        <p style="color: #888">Leave search blank to fetch all records.</p>
+        <div class="form-group">
+          <label>Filter by Email (Optional)</label
+          ><input type="text" id="g-email" />
+        </div>
+        <button class="action-btn" onclick="doFetch()">
+          Execute GET Request
+        </button>
+      </div>
+
+      <div id="update" class="view">
+        <h3>Update User Profile</h3>
+        <div class="form-group">
+          <label>Target User (Current Email)</label
+          ><input type="email" id="u-target" />
+        </div>
+        <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0" />
+        <div class="form-group">
+          <label>New Name</label><input type="text" id="u-name" />
+        </div>
+        <div class="form-group">
+          <label>New Email</label><input type="email" id="u-email" />
+        </div>
+        <div class="form-group">
+          <label>New Password</label><input type="password" id="u-pass" />
+        </div>
+        <button class="action-btn" onclick="doUpdate()">Update Record</button>
+      </div>
+
+      <div id="delete" class="view">
+        <h3>Danger Zone</h3>
+        <div class="form-group">
+          <label>User Email to Permanently Delete</label
+          ><input type="email" id="d-email" />
+        </div>
+        <button class="action-btn delete-btn" onclick="doDelete()">
+          Delete User
+        </button>
+      </div>
+    </div>
+
+    <div id="output-panel">
+      <div id="console-header">API Response Console</div>
+      <div id="response-meta">
+        <span id="status-code"></span>
+        <span id="response-time" style="color: #666"></span>
+      </div>
+      <div id="json-display">// Waiting for request...</div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:8000";
+
+      function buildUrl(endpoint, query = null) {
+        const url = new URL(endpoint, API_URL);
+
+        if (query) {
+          Object.entries(query).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== "") {
+              url.searchParams.set(key, value);
+            }
+          });
+        }
+
+        return url.toString();
+      }
+
+      function switchTab(tabId, btn) {
+        document
+          .querySelectorAll(".view")
+          .forEach((v) => v.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+        btn.classList.add("active");
+      }
+
+      async function makeRequest(endpoint, method, payload = null, query = null) {
+        const display = document.getElementById("json-display");
+        const statusDisplay = document.getElementById("status-code");
+        const timeDisplay = document.getElementById("response-time");
+
+        display.textContent = "Processing...";
+        display.style.color = "var(--primary)";
+
+        const options = {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+        };
+
+        if (payload && method !== "GET") {
+          options.body = JSON.stringify(payload);
+        }
+
+        try {
+          const startTime = Date.now();
+          const response = await fetch(buildUrl(endpoint, query), options);
+          const data = await response.json();
+          const duration = Date.now() - startTime;
+
+          // Update UI
+          statusDisplay.innerHTML = `<span class="status-pill" style="background: ${response.ok ? "#2e7d32" : "#c62828"}">${response.status} ${response.statusText}</span>`;
+          timeDisplay.textContent = `${new Date().toLocaleTimeString()} (${duration}ms)`;
+
+          display.textContent = JSON.stringify(data, null, 4);
+          if (!data.success) display.style.color = "#ff5555";
+        } catch (error) {
+          statusDisplay.innerHTML = `<span class="status-pill" style="background: #c62828">FETCH ERROR</span>`;
+          display.textContent = `Client-side Error: ${error.message}\n\nHint: Check if server.php is running and CORS is enabled.`;
+          display.style.color = "#ff5555";
+        }
+      }
+
+      // Individual Handlers
+      function doSignup() {
+        makeRequest("/signup", "POST", {
+          name: document.getElementById("s-name").value,
+          email: document.getElementById("s-email").value,
+          password: document.getElementById("s-pass").value,
+        });
+      }
+
+      function doLogin() {
+        makeRequest("/login", "POST", {
+          email: document.getElementById("l-email").value,
+          password: document.getElementById("l-pass").value,
+        });
+      }
+
+      function doFetch() {
+        const email = document.getElementById("g-email").value;
+        makeRequest("/users", "GET", null, email ? { email } : null);
+      }
+
+      function doUpdate() {
+        makeRequest("/update", "PUT", {
+          email: document.getElementById("u-target").value,
+          "new-name": document.getElementById("u-name").value,
+          "new-email": document.getElementById("u-email").value,
+          "new-password": document.getElementById("u-pass").value,
+        });
+      }
+
+      function doDelete() {
+        if (confirm("Are you sure? This cannot be undone.")) {
+          const email = document.getElementById("d-email").value;
+          makeRequest("/delete", "DELETE", null, email ? { email } : null);
+        }
+      }
+    </script>
+  </body>
+</html>
