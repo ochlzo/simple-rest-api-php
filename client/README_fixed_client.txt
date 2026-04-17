@@ -1,0 +1,2 @@
+pip install requests
+python supabase_rest_client_better_ui_fixed.py
