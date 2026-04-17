@@ -189,6 +189,26 @@ Invoke-RestMethod -Method Put -Uri http://localhost:8000/update `
 Invoke-RestMethod -Method Delete -Uri "http://localhost:8000/delete?email=ada@example.com"
 ```
 
+## Demo Clients
+
+This repo now includes two simple API clients in the [client](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client) folder:
+
+- [client/python-client.py](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/python-client.py) for a lightweight cross-platform Python CLI
+- [client/ApiSwingClient.java](C:/Users/armen/OneDrive/Desktop/simple-rest-api-php/client/ApiSwingClient.java) for a single-file Java Swing desktop client
+
+Run the Python client like this:
+
+```powershell
+python .\client\python-client.py
+```
+
+Compile and run the Java Swing client like this:
+
+```powershell
+javac .\client\ApiSwingClient.java
+java -cp .\client ApiSwingClient
+```
+
 ## Response Notes
 
 ### Failed login
